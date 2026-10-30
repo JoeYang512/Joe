@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joe Yang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ---- 淺色工業風配色系統（灰階版本，命名方式參考 elvislo.tw 的 CSS variable 結構）---- */
+    --color-bg-primary:   #E4E4E4;
+    --color-bg-secondary: #F5F5F5;
+    --color-bg-tertiary:  #EAEAEA;
+    --color-border-subtle:#CFCFCF;
+    --color-text-primary: #1A1A1A;
+    --color-text-secondary:#565656;
+    --color-text-tertiary: #8A8A8A;
+    --color-accent-primary:#333333;
+    --color-accent-muted:  #ADADAD;
+
+    --font-display:'Big Shoulders Display', sans-serif;
+    --font-sans:'Inter','Noto Sans TC', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--color-bg-primary);
+    color:var(--color-text-primary);
+    font-family:var(--font-sans);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--color-accent-primary); color:var(--color-bg-secondary); }
+  a{ color:inherit; text-decoration:none; }
+
+  .wrap{ max-width:1040px; margin:0 auto; padding:0 24px; }
+
+  /* ---------- 頂部捲動進度條 ---------- */
+  #scroll-progress{
+    position:fixed; top:0; left:0; height:2px; width:0%;
+    background:var(--color-accent-primary);
+    z-index:200; transition:width .1s linear;
+  }
+
+  /* ---------- sticky blur nav ---------- */
+  header.site-header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    border-bottom:1px solid var(--color-border-subtle);
+    background:color-mix(in srgb, var(--color-bg-primary) 82%, transparent);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+  }
+  header.site-header nav{
+    max-width:1040px; margin:0 auto; padding:0 24px;
+    height:64px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--font-mono);
+    font-weight:700;
+    font-size:16px;
+    letter-spacing:.02em;
+  }
+  .logo em{ font-style:normal; color:var(--color-accent-primary); }
+  .nav-links{ display:flex; gap:4px; }
+  .nav-links a{
+    font-size:14px; font-weight:500;
+    color:var(--color-text-secondary);
+    padding:8px 14px; border-radius:8px;
+    transition:background .2s ease, color .2s ease;
+  }
+  .nav-links a:hover{ color:var(--color-text-primary); background:var(--color-bg-tertiary); }
+  .nav-links a.active{ color:var(--color-accent-primary); background:color-mix(in srgb, var(--color-accent-primary) 12%, transparent); }
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:1040px; margin:0 auto; padding:150px 24px 90px;
+    text-align:center;
+    position:relative;
+  }
+  .hero-grid-bg{
+    position:absolute; inset:0; top:-40px;
+    background-image:
+      linear-gradient(var(--color-border-subtle) 1px, transparent 1px),
+      linear-gradient(90deg, var(--color-border-subtle) 1px, transparent 1px);
+    background-size:48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 80% at center, black 40%, transparent 90%);
+            mask-image: radial-gradient(ellipse 70% 80% at center, black 40%, transparent 90%);
+    z-index:-1;
+  }
+  .hero .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--color-accent-primary);
+    margin-bottom:20px;
+  }
+  .hero h1{
+    font-family:var(--font-display);
+    font-weight:900;
+    text-transform:uppercase;
+    font-size:clamp(44px, 8vw, 92px);
+    line-height:.95;
+    letter-spacing:.01em;
+  }
+  .hero h1 em{ font-style:normal; color:var(--color-accent-primary); }
+  .type-line{
+    margin-top:22px;
+    height:28px;
+    font-family:var(--font-mono);
+    font-size:17px;
+    color:var(--color-text-secondary);
+  }
+  .type-line .cursor{
+    display:inline-block; width:2px; height:1em;
+    background:var(--color-accent-primary);
+    margin-left:2px; vertical-align:-2px;
+    animation:blink 0.9s steps(2,start) infinite;
+  }
+  @keyframes blink{ to{ visibility:hidden; } }
+
+  .hero-actions{
+    margin-top:34px;
+    display:flex; align-items:center; justify-content:center; gap:12px; flex-wrap:wrap;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:11px 22px; border-radius:10px;
+    font-size:14px; font-weight:600;
+    transition:opacity .2s ease, background .2s ease, border-color .2s ease;
+    border:1px solid transparent;
+  }
+  .btn-ghost{
+    border-color:var(--color-border-subtle);
+    background:var(--color-bg-secondary);
+    color:var(--color-text-primary);
+  }
+  .btn-ghost:hover{ background:var(--color-bg-tertiary); }
+  .btn-solid{
+    background:var(--color-accent-primary);
+    color:var(--color-bg-secondary);
+  }
+  .btn-solid:hover{ opacity:.88; }
+
+  /* ---------- section head ---------- */
+  section{ padding-bottom:96px; }
+  .sec-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:28px;
+  }
+  .sec-head h2{
+    font-family:var(--font-display);
+    font-weight:800; text-transform:uppercase;
+    font-size:28px; letter-spacing:.01em;
+  }
+  .sec-head .view-all{
+    font-family:var(--font-mono);
+    font-size:13px; color:var(--color-accent-primary);
+  }
+  .sec-head .view-all:hover{ opacity:.75; }
+
+  /* ---------- about ---------- */
+  .about-grid{
+    display:grid; grid-template-columns:0.85fr 1.15fr; gap:20px;
+  }
+  .card-base{
+    border:1px solid var(--color-border-subtle);
+    background:var(--color-bg-secondary);
+    border-radius:14px;
+    transition:background .3s ease, border-color .3s ease;
+  }
+  .spec-card{ padding:0; overflow:hidden; }
+  .spec-card .spec-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px;
+    border-bottom:1px solid var(--color-border-subtle);
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--color-text-tertiary);
+  }
+  .spec-head .dot{ width:7px; height:7px; border-radius:50%; background:var(--color-accent-primary); }
+  .spec-row{
+    display:flex; justify-content:space-between; gap:16px;
+    padding:14px 20px;
+    border-bottom:1px solid var(--color-border-subtle);
+    font-size:14px;
+  }
+  .spec-row:last-child{ border-bottom:none; }
+  .spec-row .k{ font-family:var(--font-mono); font-size:11px; letter-spacing:.08em; color:var(--color-text-tertiary); text-transform:uppercase; flex-shrink:0; padding-top:2px; }
+  .spec-row .v{ font-weight:600; text-align:right; }
+
+  .about-text{ padding:28px; }
+  .about-byline{
+    display:flex; align-items:center; gap:16px; margin-bottom:20px;
+  }
+  .avatar{
+    width:84px; height:84px; border-radius:50%;
+    object-fit:cover; object-position:center 16%;
+    border:1px solid var(--color-border-subtle);
+    flex-shrink:0;
+  }
+  .about-text .eyebrow{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--color-accent-primary); margin-bottom:0;
+  }
+  .about-text h3{
+    font-family:var(--font-display); font-size:25px; font-weight:700;
+    line-height:1.35; margin-bottom:16px;
+  }
+  .about-text h3 em{ font-style:normal; color:var(--color-accent-primary); }
+  .about-text p{
+    color:var(--color-text-secondary); line-height:1.85; font-size:14.5px; margin-bottom:12px;
+  }
+  .skill-tags{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+  .skill-tags span{
+    font-family:var(--font-mono); font-size:11.5px;
+    padding:5px 11px; border-radius:7px;
+    background:var(--color-bg-tertiary); color:var(--color-text-tertiary);
+  }
+
+  /* ---------- experience timeline ---------- */
+  .timeline-card{ margin-top:20px; padding:28px; }
+  .timeline-card .card-title{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:26px;
+  }
+  .timeline-card .card-title span.label{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--color-accent-primary);
+  }
+  .timeline-card .card-title .dot{ width:7px; height:7px; border-radius:50%; background:var(--color-accent-primary); }
+  .timeline{ position:relative; padding-left:28px; }
+  .timeline::before{
+    content:''; position:absolute; left:5px; top:5px; bottom:5px; width:1px;
+    background:var(--color-border-subtle);
+  }
+  .tl-item{ position:relative; padding-bottom:26px; }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-item::before{
+    content:''; position:absolute; left:-28px; top:4px;
+    width:9px; height:9px; border-radius:50%;
+    background:var(--color-accent-primary);
+    box-shadow:0 0 0 3px var(--color-bg-secondary);
+  }
+  .tl-item .tl-date{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.05em;
+    color:var(--color-text-tertiary); margin-bottom:4px;
+  }
+  .tl-item h4{
+    font-family:var(--font-display); font-weight:700; font-size:19px;
+    line-height:1.25; margin-bottom:2px;
+  }
+  .tl-item .tl-company{
+    font-family:var(--font-mono); font-size:12px;
+    color:var(--color-text-secondary); margin-bottom:8px;
+  }
+  .tl-item p{
+    font-size:13.5px; color:var(--color-text-secondary); line-height:1.75;
+  }
+
+  /* ---------- education / certifications ---------- */
+  .ec-grid{
+    margin-top:20px; margin-bottom:24px;
+    display:grid; grid-template-columns:0.85fr 1.15fr; gap:20px;
+  }
+  .cert-list{
+    display:flex; flex-direction:column; gap:8px; margin-top:6px;
+  }
+  .cert-list .cert-row{
+    display:flex; align-items:flex-start; gap:8px;
+    font-size:13.5px; color:var(--color-text-secondary); line-height:1.6;
+  }
+  .cert-list .cert-row svg{
+    flex-shrink:0; margin-top:3px; color:var(--color-accent-primary);
+  }
+  .lang-row{
+    display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;
+  }
+  .lang-row span{
+    font-family:var(--font-mono); font-size:11.5px;
+    padding:5px 11px; border-radius:7px;
+    background:var(--color-bg-tertiary); color:var(--color-text-tertiary);
+  }
+  @media (max-width:760px){
+    .ec-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- work cards ---------- */
+  .work-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:20px;
+    margin-bottom:24px;
+  }
+  .fb-card{
+    padding:14px; display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .fb-card-head{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .fb-card-head .tag-corner{
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.1em;
+    color:var(--color-text-tertiary); text-transform:uppercase;
+  }
+  .fb-card-head .fb-link{
+    font-family:var(--font-mono); font-size:10.5px;
+    color:var(--color-text-tertiary);
+    display:inline-flex; align-items:center; gap:4px;
+    transition:color .2s ease;
+  }
+  .fb-card-head .fb-link:hover{ color:var(--color-accent-primary); }
+  .fb-card-head .fb-link svg{ width:11px; height:11px; }
+  .fb-embed{
+    width:100%; border-radius:10px; overflow:hidden;
+    background:var(--color-bg-tertiary);
+    aspect-ratio:267 / 476;
+  }
+  .fb-embed iframe{
+    display:block; width:100%; height:100%; border:none;
+  }
+  .photo-row{
+    display:grid; grid-template-columns:repeat(2, 1fr); gap:20px;
+    margin-bottom:20px;
+  }
+  @media (max-width:520px){
+    .photo-row{ grid-template-columns:1fr; }
+  }
+
+  /* ---------- photo cards（參考舊版 proj-card 設計）---------- */
+  .photo-card{
+    padding:0; overflow:hidden; display:flex; flex-direction:column; align-items:stretch;
+  }
+  .photo-card:hover{ background:var(--color-bg-tertiary); border-color:var(--color-accent-muted); }
+  .photo-thumb{
+    position:relative; aspect-ratio:4/3; overflow:hidden;
+    background:
+      repeating-linear-gradient(135deg, var(--color-bg-tertiary) 0 2px, transparent 2px 13px),
+      var(--color-bg-primary);
+    border-bottom:1px solid var(--color-border-subtle);
+  }
+  .photo-thumb img{
+    display:block; width:100%; height:100%; object-fit:cover;
+  }
+  .photo-thumb .empty-hint{
+    position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:10px;
+    color:var(--color-text-tertiary); border:1px dashed var(--color-border-subtle);
+  }
+  .photo-thumb .empty-hint svg{ opacity:.5; }
+  .photo-thumb .empty-hint span{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.08em;
+  }
+  .photo-thumb .num{
+    position:absolute; right:14px; bottom:6px;
+    font-family:var(--font-display); font-size:56px; font-weight:900;
+    color:var(--color-border-subtle);
+    transition:transform .35s ease;
+  }
+  .photo-card:hover .photo-thumb .num{ transform:translateX(-6px); }
+  .photo-thumb .tag-corner{
+    position:absolute; left:14px; top:12px;
+    font-family:var(--font-mono); font-size:10px; letter-spacing:.1em;
+    color:var(--color-text-tertiary); text-transform:uppercase;
+  }
+  .photo-body{ padding:20px; }
+  .photo-body h3{
+    font-family:var(--font-mono); font-weight:700; font-size:16px;
+    margin-bottom:8px;
+  }
+  .photo-card:hover .photo-body h3{ color:var(--color-accent-primary); }
+  .photo-body p{
+    font-size:13.5px; color:var(--color-text-secondary); line-height:1.7; margin-bottom:14px;
+  }
+  .photo-meta{
+    display:flex; align-items:center; gap:14px;
+    font-size:12px; color:var(--color-text-tertiary); margin-bottom:12px;
+  }
+  .photo-meta .mdot{ display:inline-flex; align-items:center; gap:6px; }
+  .photo-meta .mdot i{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .photo-tags{ display:flex; flex-wrap:wrap; gap:6px; }
+  .photo-tags span{
+    font-family:var(--font-mono); font-size:11px;
+    padding:3px 9px; border-radius:6px;
+    background:var(--color-bg-primary); color:var(--color-text-tertiary);
+  }
+
+  /* ---------- contact ---------- */
+  .contact-card{ padding:44px; text-align:center; }
+  .contact-card .eyebrow{
+    font-family:var(--font-mono); font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--color-accent-primary); margin-bottom:26px;
+  }
+  .contact-links{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:10px;
+  }
+  .contact-links a{
+    font-family:var(--font-mono); font-size:13.5px;
+    padding:10px 18px; border-radius:10px;
+    border:1px solid var(--color-border-subtle);
+    background:var(--color-bg-primary);
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .contact-links a:hover{ border-color:var(--color-accent-primary); color:var(--color-accent-primary); }
+
+  /* ---------- footer ---------- */
+  footer{
+    border-top:1px solid var(--color-border-subtle);
+  }
+  footer .wrap{
+    padding:28px 24px;
+    display:flex; justify-content:center; gap:8px; flex-wrap:wrap;
+    font-size:12.5px; color:var(--color-text-tertiary);
+  }
+
+  /* ---------- back to top ---------- */
+  #back-to-top{
+    position:fixed; right:22px; bottom:22px; z-index:150;
+    width:42px; height:42px; border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--color-bg-secondary);
+    border:1px solid var(--color-border-subtle);
+    color:var(--color-text-primary);
+    cursor:pointer;
+    opacity:0; pointer-events:none; transform:translateY(8px);
+    transition:opacity .25s ease, transform .25s ease, border-color .2s ease;
+  }
+  #back-to-top.visible{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  #back-to-top:hover{ border-color:var(--color-accent-primary); }
+
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  @media (max-width:760px){
+    .about-grid{ grid-template-columns:1fr; }
+    .work-grid{ grid-template-columns:repeat(2, 1fr); }
+    .nav-links{ display:none; }
+  }
+  @media (max-width:520px){
+    .work-grid{ grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{ animation:none !important; transition:none !important; }
+    .reveal{ opacity:1; transform:none; }
+  }
+  :focus-visible{ outline:2px solid var(--color-accent-primary); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+  <div id="scroll-progress"></div>
+
+  <header class="site-header">
+    <nav>
+      <a href="#top" class="logo">Joe Yang</a>
+      <div class="nav-links">
+        <a href="#top" class="active">Home</a>
+        <a href="#about">About</a>
+        <a href="#work">Work</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <section id="top" class="hero">
+    <div class="hero-grid-bg"></div>
+    <p class="eyebrow">Change is the only constant in life.</p>
+    <h1><em>Joe Yang</em></h1>
+    <div class="type-line"><span id="typewriter"></span><span class="cursor"></span></div>
+  </section>
+
+  <main>
+
+    <section id="about" class="wrap">
+      <div class="sec-head reveal">
+        <h2>關於我</h2>
+      </div>
+      <div class="about-grid reveal">
+        <div class="card-base spec-card">
+          <div class="spec-head"><span>About Joe</span><span class="dot"></span></div>
+          <div class="spec-row"><span class="k">Role</span><span class="v">數位媒體工作者、軟體工程師</span></div>
+          <div class="spec-row"><span class="k">Focus</span><span class="v">社群行銷 · 影音製作 · 營運管理</span></div>
+          <div class="spec-row"><span class="k">Tools</span><span class="v">Final Cut Pro · Photoshop · VS Code · XCode</span></div>
+          <div class="spec-row"><span class="k">Device</span><span class="v">Sony α7 IV · iPhone 17 Pro · DJI Mini 4 Pro</span></div>
+          <div class="spec-row"><span class="k">Base</span><span class="v">高雄，台灣</span></div>
+          <div class="spec-row"><span class="k">Exp.</span><span class="v">9 年</span></div>
+          <div class="spec-row"><span class="k">Status</span><span class="v">持續合作接案中</span></div>
+        </div>
+        <div class="card-base about-text">
+          <div class="about-byline">
+            <img class="avatar" src="profile.jpg" alt="Joe Yang大頭照">
+            <p class="eyebrow">Joe Yang</p>
+          </div>
+          <h3>創造出能解決生活的工具</h3>
+          <p>Graduated from the Department of Computer Science and Information Engineering, Cheng Shiu University in 2018. With a background in information science, I also have the soft power of planning, marketing and project execution when I joined the club at university.</p>
+          <p>我是Joe。2018年於正修科技大學資訊工程系系畢業。擁有資訊科系背景的我在大學參與社團時更擁有了企劃行銷與專案執行的軟實力，透過自己的專業能力來創造自己的價值。</p>
+          <div class="skill-tags">
+            <span>社群行銷</span>
+            <span>影音製作</span>
+            <span>平面攝影</span>
+            <span>營運管理</span>
+            <span>組織技能</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-base timeline-card reveal">
+        <div class="card-title"><span class="label">Experience 經歷</span><span class="dot"></span></div>
+        <div class="timeline">
+
+          <div class="tl-item">
+            <div class="tl-date">2025 年 6 月 — 至今（1 年 3 個月）</div>
+            <h4>Social Media Marketing</h4>
+            <div class="tl-company">高雄市議會 · 台灣 高雄市</div>
+            <p>數位影音設計與製作（YouTube／Facebook 社群影片企劃與製作）、品牌文宣與社群文案設計、活動攝影及行程紀錄。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2020 年 7 月 — 至今（6 年 2 個月）</div>
+            <h4>Editor in Chief</h4>
+            <div class="tl-company">就愛玩數位媒體工作室 · 高雄市</div>
+            <p>Apple 產品教學影音內容製作、生活旅遊分享、企業合作開箱與產品體驗分析。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2024 年 9 月 — 2025 年 5 月（9 個月）</div>
+            <h4>Field Operator</h4>
+            <div class="tl-company">CHARGESPOT（INFORICH Asia Taiwan Limited）· 高雄市</div>
+            <p>行動電源調度與電池維護、機台設備維護作業。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2024 年 3 月 — 2024 年 4 月（2 個月）</div>
+            <h4>Account Supervisor</h4>
+            <div class="tl-company">Gogoro · 高雄市</div>
+            <p>門市巡查與銷售／營運狀況檢視，問題排查與提出改善方案，激勵並確保加盟團隊執行成效。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2022 年 4 月 — 2023 年 11 月（1 年 8 個月）</div>
+            <h4>Assistant Operations Manager</h4>
+            <div class="tl-company">Gokube｜Electric Bike Sharing · 高雄市</div>
+            <p>外勤車輛與電池換電檢修維護、內部電腦硬體維護；人事管理含出缺勤、應聘招募與在職訓練考核。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2019 年 8 月 — 2022 年 3 月（2 年 8 個月）</div>
+            <h4>Media Marketing and Public Relations</h4>
+            <div class="tl-company">Gokube｜Electric Bike Sharing · 高雄市</div>
+            <p>社群影音設計製作、品牌文宣與社群文案、記者會與對外活動企劃執行；Android／iOS App 使用者端測試與 Bug 檢查；校園交通安全宣導講師與政府合作提案開發。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2018 年 6 月 — 2018 年 11 月（6 個月）</div>
+            <h4>Salesperson</h4>
+            <div class="tl-company">晶實科技股份有限公司 · 高雄市</div>
+            <p>Apple 產品銷售與使用諮詢，依使用者需求銷售主機與周邊配件。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2017 年 3 月 — 2018 年 5 月（1 年 3 個月）</div>
+            <h4>Mobile Phone Engineer</h4>
+            <div class="tl-company">蘋果殿工作室 · 高雄市</div>
+            <p>iPhone、iPad、MacBook 產品維修檢查，Apple 產品銷售與使用諮詢。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2015 年 8 月 — 2018 年 4 月（2 年 9 個月）</div>
+            <h4>Administrative Assistant</h4>
+            <div class="tl-company">正修科技大學 · 高雄市</div>
+            <p>公文收發與文書業務、校園活動企劃與評估分析、資料庫與雲端空間維護、電腦硬體檢修與障礙排除。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2014 年 6 月 — 2015 年 6 月（1 年 1 個月）</div>
+            <h4>Specialist</h4>
+            <div class="tl-company">來來超商股份有限公司 · 高雄市</div>
+            <p>門市銷售作業、店面設備清潔與維護。</p>
+          </div>
+
+          <div class="tl-item">
+            <div class="tl-date">2014 年 4 月（1 個月）</div>
+            <h4>Operational Specialist</h4>
+            <div class="tl-company">日月光半導體製造股份有限公司 · 高雄市</div>
+            <p>校園實習，晶圓生產線生產助理作業。</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="ec-grid reveal">
+        <div class="card-base spec-card">
+          <div class="spec-head"><span>Education 學歷</span><span class="dot"></span></div>
+          <div class="spec-row"><span class="k">School</span><span class="v">正修科技大學 Cheng Shiu University</span></div>
+          <div class="spec-row"><span class="k">Degree</span><span class="v">資訊工程學系 · 學士</span></div>
+          <div class="spec-row"><span class="k">Period</span><span class="v">2014.09 – 2018.07</span></div>
+        </div>
+        <div class="card-base about-text">
+          <p class="eyebrow">Certifications 證照</p>
+          <div class="cert-list">
+            <div class="cert-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              中華民國技術士 — 電腦硬體裝修乙級
+            </div>
+              <div class="cert-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              中華民國技術士 — 電腦硬體裝修丙級
+            </div>
+            <div class="cert-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              中華民國技術士 — 視聽電子丙級
+            </div>
+            <div class="cert-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              中華民國技術士 — 工業電子丙級
+            </div>
+            <div class="cert-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Internet and Computing Core Certification
+            </div>
+            <div class="cert-row">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Gemini Certified Educator
+            </div>
+          </div>
+          <p class="eyebrow" style="margin-top:24px;">Languages 語言</p>
+          <div class="lang-row">
+            <span>中文 · Full Professional</span>
+            <span>台語 · Full Professional</span>
+            <span>英語 · Limited Working</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="work" class="wrap">
+      <div class="sec-head reveal">
+        <h2>作品集</h2>
+        <a href="#" class="view-all">查看全部 →</a>
+      </div>
+      <div class="photo-row">
+
+        <div class="card-base photo-card reveal">
+          <div class="photo-thumb">
+            <a href="https://joeyang512.github.io/ferryboard/" target="_blank" rel="noopener noreferrer">
+    <img src="work-photo-1.png" alt="作品照片 01" loading="lazy">
+</a>
+            
+          </div>
+          <div class="photo-body">
+            <h3>小琉球航班動態介面</h3>
+            <p>打造直覺、清晰的船班資訊介面，讓使用者一眼掌握航班動態，並可即時更新船班資訊，提升資訊查詢的便利性與即時性。</p>
+            <div class="photo-meta"><span class="mdot"><i style="background:#701b1b"></i>Web</span><span>2026</span></div>
+            <div class="photo-tags"><span>HTML</span><span>CSS</span></div>
+          </div>
+        </div>
+
+        <div class="card-base photo-card reveal">
+          <div class="photo-thumb">
+            <img src="work-photo-2.png" alt="作品照片 02" loading="lazy">
+          </div>
+          <div class="photo-body">
+            <h3>出國旅遊分帳系統</h3>
+            <p>讓旅遊記帳與費用分攤更簡單，快速記錄旅途中每筆支出，自動整理成員的付款金額與分帳結果，讓多人出遊的費用一目了然。</p>
+            <div class="photo-meta"><span class="mdot"><i style="background:#701b1b"></i>Web</span><span>2026</span></div>
+            <div class="photo-tags"><span>HTML</span><span>CSS</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="work-grid">
+
+        <div class="card-base fb-card reveal">
+          <div class="fb-card-head">
+            <span class="tag-corner">Reels</span>
+            <a class="fb-link" href="https://www.facebook.com/reel/1297050302505769/" target="_blank" rel="noopener">在 Facebook 開啟
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+          <div class="fb-embed">
+            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1297050302505769%2F&show_text=false&width=267&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+          </div>
+        </div>
+
+        <div class="card-base fb-card reveal">
+          <div class="fb-card-head">
+            <span class="tag-corner">Reels</span>
+            <a class="fb-link" href="https://www.facebook.com/reel/1657717155499355/" target="_blank" rel="noopener">在 Facebook 開啟
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+          <div class="fb-embed">
+            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1657717155499355%2F&show_text=false&width=267&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+          </div>
+        </div>
+
+        <div class="card-base fb-card reveal">
+          <div class="fb-card-head">
+            <span class="tag-corner">Reels</span>
+            <a class="fb-link" href="https://www.facebook.com/reel/1597974218102730/" target="_blank" rel="noopener">在 Facebook 開啟
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+          <div class="fb-embed">
+            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1597974218102730%2F&show_text=false&width=267&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+          </div>
+        </div>
+
+        <div class="card-base fb-card reveal">
+          <div class="fb-card-head">
+            <span class="tag-corner">Reels</span>
+            <a class="fb-link" href="https://www.facebook.com/reel/1926674391280181/" target="_blank" rel="noopener">在 Facebook 開啟
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+          <div class="fb-embed">
+            <iframe src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2Freel%2F1926674391280181%2F&show_text=false&width=267&t=0" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="wrap">
+      <div class="card-base contact-card reveal">
+        <p class="eyebrow">Contact</p>
+        <div class="contact-links">
+          <a href="mailto:yan85512@icloud.com">yan85512@icloud.com</a>
+          <a href="https://instagram.com/joe.0512" target="_blank" rel="noopener">Instagram ↗</a>
+          <a href="https://www.facebook.com/YangPoyen" target="_blank" rel="noopener">Facebook ↗</a>
+          <a href="https://linkedin.com/in/joe0512/" target="_blank" rel="noopener">LinkedIn ↗</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Joe Yang All rights reserved.</span>
+    </div>
+  </footer>
+
+  <button id="back-to-top" aria-label="回到最上層">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+  </button>
+
+  <script>
+    // 捲動進度條
+    const progress = document.getElementById('scroll-progress');
+    function updateProgress(){
+      const h = document.documentElement;
+      const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+      progress.style.width = scrolled + '%';
+    }
+    document.addEventListener('scroll', updateProgress, { passive:true });
+    updateProgress();
+
+    // 回到頂部按鈕
+    const backBtn = document.getElementById('back-to-top');
+    document.addEventListener('scroll', () => {
+      backBtn.classList.toggle('visible', window.scrollY > 480);
+    }, { passive:true });
+    backBtn.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+
+    // 打字機效果
+    const messages = ['到處發現新東西', '動手來創作', '從草圖到成品', '歡迎一起合作'];
+    const el = document.getElementById('typewriter');
+    let mi = 0, ci = 0, deleting = false;
+    function tick(){
+      const msg = messages[mi];
+      if(!deleting){
+        ci++;
+        el.textContent = msg.slice(0, ci);
+        if(ci === msg.length){ deleting = true; setTimeout(tick, 1400); return; }
+      } else {
+        ci--;
+        el.textContent = msg.slice(0, ci);
+        if(ci === 0){ deleting = false; mi = (mi+1) % messages.length; }
+      }
+      setTimeout(tick, deleting ? 35 : 75);
+    }
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      el.textContent = messages[0];
+    } else {
+      tick();
+    }
+
+    // scroll reveal
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold:0.12 });
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+    // 導覽列 scrollspy：依目前捲動所在區塊自動切換 active 按鈕
+    const navLinks = document.querySelectorAll('.nav-links a');
+    const spySections = ['top', 'about', 'work', 'contact']
+      .map(id => document.getElementById(id))
+      .filter(Boolean);
+
+    function setActiveNav(id){
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+      });
+    }
+
+    const spyIO = new IntersectionObserver((entries)=>{
+      entries.forEach(entry => {
+        if(entry.isIntersecting){
+          setActiveNav(entry.target.id);
+        }
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    spySections.forEach(sec => spyIO.observe(sec));
+
+    // 頁面載入時若已捲動（例如帶錨點進站），先校正一次 active 狀態
+    (function initActiveNav(){
+      let current = spySections[0];
+      const y = window.scrollY + window.innerHeight * 0.45;
+      spySections.forEach(sec => {
+        if(sec.offsetTop <= y) current = sec;
+      });
+      if(current) setActiveNav(current.id);
+    })();
+
+    // 圖片右鍵保護（呼應參考網站的圖片保護行為，此頁尚無真實圖片，保留擴充空間）
+    document.addEventListener('contextmenu', (e)=>{
+      if(e.target instanceof HTMLImageElement) e.preventDefault();
+    });
+  </script>
+
+</body>
+</html>
